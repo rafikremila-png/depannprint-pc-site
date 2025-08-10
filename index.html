@@ -1,26 +1,642 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Dépann’Print & PC Express</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Générer le ZIP Dépann’Print</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<style>
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;padding:24px;background:#f6f7fb;color:#111}
+  .card{max-width:900px;margin:auto;background:#fff;border:1px solid #e5e7eb;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.08);padding:20px}
+  h1{margin:0 0 8px;font-size:22px}
+  p{margin:8px 0;color:#475569}
+  button{margin-top:12px;background:#2563EB;color:#fff;border:0;border-radius:999px;padding:12px 18px;font-weight:700;cursor:pointer}
+  button:hover{filter:brightness(.95)}
+  code{background:#f1f5f9;padding:2px 6px;border-radius:6px}
+  li{margin:6px 0}
+</style>
 </head>
 <body>
-  <h1 id="heroTitle">Bienvenue chez Dépann’Print & PC Express</h1>
-  <p id="heroSubtitle">Réparation informatique et impression à Courbevoie</p>
+<div class="card">
+  <h1>Créer le fichier depannprint-site.zip</h1>
+  <ol>
+    <li>Clique sur le bouton ci-dessous.</li>
+    <li>Le ZIP contiendra le site + Netlify CMS + 4 logos.</li>
+    <li>Décompresse-le puis mets le dossier sur Netlify (Import from Git ou Deploy manually).</li>
+  </ol>
+  <button id="go">Télécharger le ZIP</button>
+  <p id="status"></p>
+</div>
 
-  <h2>Nos services</h2>
-  <ul id="services">
-    <li>Réparation PC</li>
-    <li>Réparation téléphones</li>
-    <li>Service impression</li>
-  </ul>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+<script>
+document.getElementById('go').addEventListener('click', async () => {
+  const s = document.getElementById('status');
+  s.textContent = 'Génération du ZIP…';
+  const zip = new JSZip();
 
-  <h2>Contact</h2>
-  <form name="contact" method="POST" data-netlify="true">
-    <input type="text" name="name" placeholder="Nom" required>
-    <input type="email" name="email" placeholder="Email" required>
-    <textarea name="message" placeholder="Message" required></textarea>
-    <button type="submit">Envoyer</button>
-  </form>
+  function add(path, content){ zip.file(path, content); }
+
+  // 1) index.html (version CMS-ready)
+  const indexHtml = `<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title id="metaTitle">Dépann’Print & PC Express — Dépannage informatique, impression et design</title>
+  <meta id="metaDescription" name="description" content="Dépannage informatique rapide, solutions d’impression et conception de cartes de visite & flyers. Intervention en Île-de-France et partout en France à distance." />
+  <meta name="theme-color" content="#2563EB" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link id="linkCanonical" rel="canonical" href="https://www.exemple-depannprint.fr/" />
+  <meta property="og:type" content="website">
+  <meta id="ogTitle" property="og:title" content="Dépann’Print & PC Express">
+  <meta id="ogDescription" property="og:description" content="Dépannage informatique, impression pro et design — Île-de-France + France à distance.">
+  <meta id="ogUrl" property="og:url" content="https://www.exemple-depannprint.fr/">
+  <meta id="ogImage" property="og:image" content="https://www.exemple-depannprint.fr/logo-badge-blue-3d.svg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/svg+xml" href="logo-badge-blue-3d.svg">
+  <style>
+    :root { --red:#DC2626; --blue:#2563EB; --dark:#111827; --muted:#6B7280; --bg:#F9FAFB; --card:#FFFFFF; --ring:0 0 0 3px rgba(37,99,235,.25); --radius:14px; --shadow:0 10px 30px rgba(0,0,0,.08); }
+    *{box-sizing:border-box} html,body{margin:0;padding:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--dark);background:var(--bg)}
+    a{color:inherit;text-decoration:none} img{max-width:100%;height:auto}
+    .container{width:min(1200px,92%);margin:0 auto}
+    header{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid #e5e7eb}
+    .nav{display:flex;align-items:center;justify-content:space-between;height:68px;gap:16px}
+    .brand{display:flex;align-items:center;gap:12px}.brand img{height:40px}
+    nav ul{display:flex;gap:18px;list-style:none;padding:0;margin:0} nav a{color:#111827;font-weight:600;font-size:15px;opacity:.9}
+    .cta-sm{display:none} .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border-radius:999px;font-weight:700;border:1px solid transparent;transition:.2s ease;cursor:pointer}
+    .btn-primary{background:var(--red);color:#fff}.btn-primary:hover{filter:brightness(.95)} .btn-outline{border-color:#e5e7eb;background:#fff}.btn-outline:hover{border-color:#cbd5e1}
+    .btn-wa{background:#25D366;color:#fff}.btn-wa:hover{filter:brightness(.95)}
+    .burger{display:none;background:transparent;border:0;width:40px;height:40px;border-radius:8px}
+    .mobile-menu{display:none;background:#fff;border-bottom:1px solid #e5e7eb}.mobile-menu ul{list-style:none;padding:8px 0 16px;margin:0}.mobile-menu li{padding:10px 0}.mobile-actions{display:flex;gap:10px;padding-bottom:12px}
+    .hero{padding:64px 0 32px;background:linear-gradient(180deg,#fff 0%,#fff 60%,var(--bg) 100%)} .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center}
+    .kicker{color:var(--blue);font-weight:700;text-transform:uppercase;letter-spacing:.12em;font-size:12px}
+    h1{font-size:clamp(28px,4vw,40px);line-height:1.15;margin:8px 0 12px} .lead{color:var(--muted);font-size:clamp(16px,2vw,18px)}
+    .hero-actions{display:flex;gap:12px;margin-top:18px;flex-wrap:wrap}
+    .badges{display:flex;gap:14px;margin-top:14px;align-items:center;color:var(--muted);font-size:14px;flex-wrap:wrap}
+    .badge{background:#fff;border:1px solid #e5e7eb;padding:8px 12px;border-radius:999px}
+    section{padding:56px 0}.section-title{font-size:28px;margin:0 0 8px}.section-sub{color:var(--muted);margin:0 0 24px}
+    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .card{background:var(--card);border:1px solid #e5e7eb;border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+    .card h3{margin:8px 0 8px;font-size:20px}.card p{color:var(--muted);margin:0 0 10px}
+    .list{margin:0;padding-left:18px;color:#374151}.list li{margin:6px 0}
+    .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.step{background:#fff;border:1px solid #e5e7eb;border-radius:var(--radius);padding:18px}.step .num{width:32px;height:32px;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;border-radius:999px;font-weight:700;margin-bottom:8px}
+    .testimonials{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.quote{background:#fff;border:1px solid #e5e7eb;border-radius:var(--radius);padding:18px;font-size:15px;color:#374151}.quote .author{margin-top:10px;color:#6b7280;font-size:14px}
+    .faq{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}.qa{background:#fff;border:1px solid #e5e7eb;border-radius:var(--radius);padding:18px}.qa h4{margin:0 0 6px;font-size:16px}.qa p{margin:0;color:#374151}
+    .contact-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}
+    form{background:#fff;border:1px solid #e5e7eb;border-radius:var(--radius);padding:20px}
+    .field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px} label{font-weight:600;font-size:14px}
+    input,textarea{padding:12px 14px;border-radius:10px;border:1px solid #e5e7eb;font-size:15px} input:focus,textarea:focus{outline:none;box-shadow:var(--ring);border-color:#bfdbfe} textarea{min-height:120px;resize:vertical}
+    .contact-cards{display:grid;grid-template-columns:1fr;gap:12px}.info{background:#fff;border:1px solid #e5e7eb;border-radius:var(--radius);padding:16px}.info a{color:var(--blue);font-weight:600}
+    .social{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap}
+    footer{padding:28px 0;color:#6b7280;border-top:1px solid #e5e7eb;background:#fff}
+    @media (max-width:992px){.cards,.steps,.testimonials,.faq{grid-template-columns:1fr 1fr}.hero-grid,.contact-grid{grid-template-columns:1fr}}
+    @media (max-width:720px){nav ul{display:none}.cta-sm{display:inline-flex}.burger{display:block}.cards,.steps,.testimonials,.faq{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <a class="brand" href="#top" aria-label="Accueil">
+        <img src="logo-horizontal-blue-3d.svg" alt="Dépann’Print & PC Express" width="220" height="55">
+      </a>
+      <nav aria-label="Navigation principale">
+        <ul>
+          <li><a href="#services">Services</a></li>
+          <li><a href="#process">Process</a></li>
+          <li><a href="#zones">Zones</a></li>
+          <li><a href="#apropos">À propos</a></li>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="actions" style="display:flex;align-items:center;gap:10px;">
+        <a class="btn btn-outline cta-sm" href="#contact">Devis</a>
+        <button class="burger" aria-label="Ouvrir le menu mobile" onclick="toggleMenu()">
+          <svg width="24" height="24" fill="none" stroke="#111827" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <a class="btn btn-primary" href="#contact">Demander un devis</a>
+      </div>
+    </div>
+    <div id="mobileMenu" class="mobile-menu">
+      <div class="container">
+        <ul>
+          <li><a href="#services" onclick="toggleMenu(false)">Services</a></li>
+          <li><a href="#process" onclick="toggleMenu(false)">Process</a></li>
+          <li><a href="#zones" onclick="toggleMenu(false)">Zones</a></li>
+          <li><a href="#apropos" onclick="toggleMenu(false)">À propos</a></li>
+          <li><a href="#faq" onclick="toggleMenu(false)">FAQ</a></li>
+          <li><a href="#contact" onclick="toggleMenu(false)">Contact</a></li>
+        </ul>
+        <div class="mobile-actions">
+          <a id="waMenu" class="btn btn-wa" target="_blank" rel="noopener" href="#">WhatsApp</a>
+          <a id="telMenu" class="btn btn-outline" href="#">Appeler</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="top" class="hero">
+    <div class="container hero-grid">
+      <div>
+        <div id="heroKicker" class="kicker">Île-de-France + France à distance</div>
+        <h1 id="heroTitle">Dépannage informatique, impression pro et design qui fait la différence</h1>
+        <p id="heroLead" class="lead">Diagnostic rapide, installation et maintenance d’imprimantes, et création de cartes de visite & flyers. Intervention sur site en Île‑de‑France et partout en France à distance.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#contact">Demander un devis gratuit</a>
+          <a id="waHero" class="btn btn-wa" target="_blank" rel="noopener" href="#">WhatsApp</a>
+          <a id="telHero" class="btn btn-outline" href="#">Appeler</a>
+        </div>
+        <div id="heroBadges" class="badges">
+          <span class="badge">Devis clair</span>
+          <span class="badge">Intervention rapide</span>
+          <span class="badge">Satisfaction garantie</span>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <img src="logo-badge-blue-3d.svg" alt="Dépannage PC et solutions d’impression">
+          <p style="color:#6b7280;margin-top:8px;">Conseil, dépannage et impression — pour particuliers et pros.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <section id="services">
+    <div class="container">
+      <h2 class="section-title">Nos services</h2>
+      <p class="section-sub">Tout pour vos ordinateurs et vos impressions, de A à Z.</p>
+      <div id="servicesContainer" class="cards"></div>
+    </div>
+  </section>
+
+  <section id="process">
+    <div class="container">
+      <h2 class="section-title">Comment ça marche</h2>
+      <p class="section-sub">Simple et efficace en 3 étapes.</p>
+      <div id="stepsContainer" class="steps"></div>
+    </div>
+  </section>
+
+  <section id="zones">
+    <div class="container">
+      <h2 class="section-title">Zones d’intervention</h2>
+      <p class="section-sub">Île‑de‑France et toute la France à distance.</p>
+      <div id="zonesContainer" class="cards"></div>
+    </div>
+  </section>
+
+  <section id="apropos">
+    <div class="container">
+      <h2 class="section-title">À propos</h2>
+      <p class="section-sub">Réactifs, transparents et orientés résultats.</p>
+      <div class="card">
+        <p id="aboutIntro">...</p>
+        <ul id="aboutList" class="list"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="avis">
+    <div class="container">
+      <h2 class="section-title">Avis clients</h2>
+      <p class="section-sub">Ils nous font confiance.</p>
+      <div id="testimonialsContainer" class="testimonials"></div>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="container">
+      <h2 class="section-title">FAQ</h2>
+      <div id="faqContainer" class="faq"></div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="container">
+      <h2 class="section-title">Contact & devis</h2>
+      <p class="section-sub">Réponse rapide par WhatsApp, téléphone ou email.</p>
+      <div class="contact-grid">
+        <form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+          <input type="hidden" name="form-name" value="contact" />
+          <p style="display:none;"><label>Ne pas remplir: <input name="bot-field" /></label></p>
+          <div class="field"><label for="nom">Nom</label><input id="nom" name="nom" type="text" placeholder="Votre nom" required></div>
+          <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" placeholder="vous@email.com" required></div>
+          <div class="field"><label for="tel">Téléphone</label><input id="tel" name="tel" type="tel" placeholder="+33..." required></div>
+          <div class="field"><label for="message">Votre besoin</label><textarea id="message" name="message" placeholder="Décrivez votre demande (panne, impression, design...)"></textarea></div>
+          <button class="btn btn-primary" type="submit">Envoyer la demande</button>
+          <p id="formSuccess" style="display:none;color:green;margin-top:10px;">Merci ! Votre demande a été envoyée.</p>
+        </form>
+
+        <div class="contact-cards">
+          <div class="info">
+            <strong>Email</strong><br>
+            <a id="emailLink" href="mailto:depanneprint.pc@gmail.com">depanneprint.pc@gmail.com</a>
+          </div>
+          <div class="info">
+            <strong>Téléphone / WhatsApp</strong><br>
+            <a id="telLink" href="tel:+33617571174">+33 6 17 57 11 74</a> — <a id="waLink" target="_blank" rel="noopener" href="#">Ouvrir WhatsApp</a>
+          </div>
+          <div class="info">
+            <strong>Instagram</strong>
+            <div class="social">
+              <a id="instagramLink" target="_blank" rel="noopener" href="https://www.instagram.com/depannprint?igsh=...">@depannprint</a>
+            </div>
+          </div>
+          <div class="info">
+            <strong>Zones</strong>
+            <p>Île-de-France sur site. France entière à distance.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+      <div>© <span id="year"></span> Dépann’Print & PC Express. Tous droits réservés.</div>
+      <div style="display:flex;gap:12px;">
+        <a href="#" onclick="alert('À compléter'); return false;">Mentions légales</a>
+        <a href="#" onclick="alert('À compléter'); return false;">Politique de confidentialité</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    function toggleMenu(force){const m=document.getElementById('mobileMenu');const show=typeof force==='boolean'?force:m.style.display!=='block';m.style.display=show?'block':'none'}
+
+    fetch('data/site.json').then(r=>r.json()).then(d=>{
+      document.title = d.businessName + " — Dépannage informatique, impression et design";
+      document.getElementById('metaTitle').textContent = document.title;
+      document.getElementById('metaDescription').setAttribute('content', d.hero.lead);
+      const domain = (d.domain||'').replace(/\\/$/,'');
+      if(domain){
+        document.getElementById('linkCanonical').setAttribute('href', domain + '/');
+        document.getElementById('ogUrl').setAttribute('content', domain + '/');
+        document.getElementById('ogImage').setAttribute('content', domain + '/logo-badge-blue-3d.svg');
+      }
+      document.getElementById('ogTitle').setAttribute('content', d.businessName);
+      document.getElementById('ogDescription').setAttribute('content', d.hero.lead);
+
+      document.getElementById('heroKicker').textContent = d.hero.kicker;
+      document.getElementById('heroTitle').textContent = d.hero.title;
+      document.getElementById('heroLead').textContent = d.hero.lead;
+      const badges = document.getElementById('heroBadges'); badges.innerHTML='';
+      (d.hero.badges||[]).forEach(b=>{const s=document.createElement('span');s.className='badge';s.textContent=b;badges.appendChild(s)});
+
+      const phone = d.contact.phone || '';
+      const telHref = phone ? 'tel:' + phone.replace(/\\s+/g,'') : '#';
+      const wa = d.contact.whatsapp || phone;
+      const waHref = wa ? 'https://wa.me/' + wa.replace(/\\D/g,'') + '?text=' + encodeURIComponent('Bonjour ! Pouvez-vous me faire un devis ?') : '#';
+      const email = d.contact.email || '';
+      const insta = d.contact.instagramUrl || '#';
+
+      ['telMenu','telHero','telLink'].forEach(id=>{const a=document.getElementById(id); if(a){a.href=telHref; if(id==='telLink') a.textContent = phone.replace(/^(\\+33)/,'+33 ').replace(/(\\d{2})(?=\\d)/g,'$1 ') }});
+      ['waMenu','waHero','waLink'].forEach(id=>{const a=document.getElementById(id); if(a){a.href=waHref}});
+      const e=document.getElementById('emailLink'); if(e){e.href='mailto:'+email; e.textContent=email}
+      const ig=document.getElementById('instagramLink'); if(ig){ig.href=insta; ig.textContent='@depannprint'}
+
+      const sc=document.getElementById('servicesContainer'); sc.innerHTML='';
+      (d.services||[]).forEach(s=>{
+        const card=document.createElement('div'); card.className='card';
+        const h=document.createElement('h3'); h.textContent=s.title; card.appendChild(h);
+        const p=document.createElement('p'); p.className='section-sub'; p.style.margin='0 0 10px'; p.textContent=s.desc; card.appendChild(p);
+        const ul=document.createElement('ul'); ul.className='list';
+        (s.bullets||[]).forEach(it=>{const li=document.createElement('li'); li.textContent=it; ul.appendChild(li)});
+        card.appendChild(ul); sc.appendChild(card);
+      });
+
+      const pc=document.getElementById('stepsContainer'); pc.innerHTML='';
+      (d.process||[]).forEach((s,i)=>{
+        const step=document.createElement('div'); step.className='step';
+        const num=document.createElement('div'); num.className='num'; num.textContent= (i+1); step.appendChild(num);
+        const h=document.createElement('h3'); h.textContent=s.title; step.appendChild(h);
+        const p=document.createElement('p'); p.textContent=s.text; step.appendChild(p);
+        pc.appendChild(step);
+      });
+
+      const zc=document.getElementById('zonesContainer'); zc.innerHTML='';
+      const card1=document.createElement('div'); card1.className='card';
+      card1.innerHTML='<h3>Sur site (Île‑de‑France)</h3><p>'+ (d.zones.idfText||'') +'</p>';
+      const ul1=document.createElement('ul'); ul1.className='list'; (d.zones.idfBullets||[]).forEach(t=>{const li=document.createElement('li'); li.textContent=t; ul1.appendChild(li)}); card1.appendChild(ul1);
+
+      const card2=document.createElement('div'); card2.className='card';
+      card2.innerHTML='<h3>À distance (France entière)</h3>';
+      const ul2=document.createElement('ul'); ul2.className='list'; (d.zones.remoteBullets||[]).forEach(t=>{const li=document.createElement('li'); li.textContent=t; ul2.appendChild(li)}); card2.appendChild(ul2);
+
+      const card3=document.createElement('div'); card3.className='card';
+      card3.innerHTML='<h3>Impression & livraison</h3>';
+      const ul3=document.createElement('ul'); ul3.className='list'; (d.zones.printBullets||[]).forEach(t=>{const li=document.createElement('li'); li.textContent=t; ul3.appendChild(li)}); card3.appendChild(ul3);
+
+      zc.appendChild(card1); zc.appendChild(card2); zc.appendChild(card3);
+
+      document.getElementById('aboutIntro').textContent = d.about.intro || '';
+      const al=document.getElementById('aboutList'); al.innerHTML=''; (d.about.bullets||[]).forEach(t=>{const li=document.createElement('li'); li.textContent=t; al.appendChild(li)});
+
+      const tc=document.getElementById('testimonialsContainer'); tc.innerHTML='';
+      (d.testimonials||[]).forEach(t=>{
+        const q=document.createElement('div'); q.className='quote';
+        q.innerHTML = '“'+t.text+'”<div class="author">— '+t.author+'</div>';
+        tc.appendChild(q);
+      });
+
+      const fq=document.getElementById('faqContainer'); fq.innerHTML='';
+      (d.faq||[]).forEach(q=>{
+        const qa=document.createElement('div'); qa.className='qa';
+        qa.innerHTML = '<h4>'+q.q+'</h4><p>'+q.a+'</p>';
+        fq.appendChild(qa);
+      });
+    }).catch(e=>console.warn('Contenu par défaut utilisé (data/site.json introuvable):', e));
+
+    if (window.location.search.includes('success=true')) {
+      const el=document.getElementById('formSuccess'); if(el) el.style.display='block';
+    }
+  <\/script>
 </body>
-</html>
+</html>`;
+  add('index.html', indexHtml);
+
+  // 2) admin/index.html
+  add('admin/index.html', `<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin</title></head>
+<body><script src="https://unpkg.com/netlify-cms@^2/dist/netlify-cms.js"><\/script></body></html>`);
+
+  // 3) admin/config.yml
+  add('admin/config.yml', `backend:
+  name: git-gateway
+  branch: main
+media_folder: "assets/uploads"
+public_folder: "/assets/uploads"
+collections:
+  - name: "site"
+    label: "Textes & Paramètres"
+    files:
+      - file: "data/site.json"
+        label: "Contenu de la page"
+        fields:
+          - {label: "Nom de l’entreprise", name: "businessName", widget: "string", default: "Dépann’Print & PC Express"}
+          - {label: "Domaine (URL complète avec https://)", name: "domain", widget: "string", default: "https://www.exemple-depannprint.fr/"}
+          - label: "Contact"
+            name: "contact"
+            widget: "object"
+            fields:
+              - {label: "Email", name: "email", widget: "string", default: "depanneprint.pc@gmail.com"}
+              - {label: "Téléphone (format international)", name: "phone", widget: "string", default: "+33617571174"}
+              - {label: "WhatsApp (format international)", name: "whatsapp", widget: "string", default: "+33617571174"}
+              - {label: "Instagram URL", name: "instagramUrl", widget: "string", default: "https://www.instagram.com/depannprint?igsh=MTJuOGdocjNkc28wdw%3D%3D&utm_source=qr"}
+          - label: "Hero"
+            name: "hero"
+            widget: "object"
+            fields:
+              - {label: "Kicker", name: "kicker", widget: "string", default: "Île-de-France + France à distance"}
+              - {label: "Titre", name: "title", widget: "string", default: "Dépannage informatique, impression pro et design qui fait la différence"}
+              - {label: "Accroche", name: "lead", widget: "text", default: "Diagnostic rapide, installation et maintenance d’imprimantes, et création de cartes de visite & flyers. Intervention sur site en Île‑de‑France et partout en France à distance."}
+              - {label: "Badges", name: "badges", widget: "list", field: {label: "Badge", name: "badge", widget: "string"}, default: ["Devis clair","Intervention rapide","Satisfaction garantie"]}
+          - label: "Services"
+            name: "services"
+            widget: "list"
+            fields:
+              - {label: "Titre", name: "title", widget: "string"}
+              - {label: "Description", name: "desc", widget: "string"}
+              - {label: "Points", name: "bullets", widget: "list", field: {label: "Point", name: "point", widget: "string"}}
+            default:
+              - {title: "1) Dépannage informatique", desc: "À domicile ou à distance — rapide et transparent.", bullets: ["Diagnostic, suppression de virus/malware","Réinstallation Windows/Mac, optimisation","Sauvegarde et récupération de données","Installation imprimantes, Wi‑Fi et logiciels","Maintenance préventive et support"]}
+              - {title: "2) Solutions d’impression", desc: "Installation, dépannage et consommables.", bullets: ["Installation imprimantes USB, réseau, Wi‑Fi","Résolution bourrages, qualité d’impression","Paramétrage pilotes et partage réseau","Conseil en modèles et contrats de maintenance","Gestion de parc d’impression"]}
+              - {title: "3) Conception graphique & impression", desc: "Cartes de visite, flyers, affiches et bannières.", bullets: ["Création graphique sur‑mesure (BAT)","Conseil papiers, finitions et formats","Impression et livraison","Intégration de votre charte graphique","Forfaits packs lancement"]}
+          - label: "Process (3 étapes)"
+            name: "process"
+            widget: "list"
+            fields:
+              - {label: "Titre", name: "title", widget: "string"}
+              - {label: "Texte", name: "text", widget: "string"}
+            default:
+              - {title: "Contact", text: "Expliquez votre besoin par WhatsApp, téléphone ou formulaire."}
+              - {title: "Devis", text: "Vous recevez un devis clair avec le délai et le coût estimé."}
+              - {title: "Intervention/Livraison", text: "Sur site en IDF ou à distance partout en France. Livraison des impressions."}
+          - label: "Zones"
+            name: "zones"
+            widget: "object"
+            fields:
+              - {label: "Texte IDF", name: "idfText", widget: "string", default: "Déplacement dans toute l’IDF. Entreprises et particuliers."}
+              - {label: "IDF — Points", name: "idfBullets", widget: "list", field: {label: "Point", name: "point", widget: "string"}, default: ["Paris (75), Hauts‑de‑Seine (92), Seine‑Saint‑Denis (93)","Val‑de‑Marne (94), Yvelines (78), Essonne (91)","Val‑d’Oise (95), Seine‑et‑Marne (77)"]}
+              - {label: "À distance — Points", name: "remoteBullets", widget: "list", field: {label: "Point", name: "point", widget: "string"}, default: ["Assistance à distance pour PC/Mac","Paramétrage imprimantes et réseaux","Conseil et accompagnement"]}
+              - {label: "Impression — Points", name: "printBullets", widget: "list", field: {label: "Point", name: "point", widget: "string"}, default: ["Cartes de visite, flyers, affiches","Qualité pro, délais rapides","Suivi de commande"]}
+          - label: "À propos"
+            name: "about"
+            widget: "object"
+            fields:
+              - {label: "Texte", name: "intro", widget: "text", default: "Chez Dépann’Print & PC Express, nous combinons expertise informatique, maîtrise des solutions d’impression et design graphique. Notre priorité: résoudre vos problèmes rapidement et livrer des supports imprimés qui valorisent votre image."}
+              - {label: "Points", name: "bullets", widget: "list", field: {label: "Point", name: "point", widget: "string"}, default: ["Devis clair et sans surprise","Intervention rapide en IDF, support à distance national","Qualité d’impression contrôlée (BAT avant production)"]}
+          - label: "Avis"
+            name: "testimonials"
+            widget: "list"
+            fields:
+              - {label: "Texte", name: "text", widget: "text"}
+              - {label: "Auteur", name: "author", widget: "string"}
+            default:
+              - {text: "Diagnostic rapide et réparation dans la journée. Je recommande !", author: "Marie D."}
+              - {text: "Nos cartes de visite sont superbes. Bons conseils et livraison rapide.", author: "K. Ben"}
+              - {text: "Paramétrage imprimante réseau au top. Intervention efficace.", author: "A. Leroy"}
+          - label: "FAQ"
+            name: "faq"
+            widget: "list"
+            fields:
+              - {label: "Question", name: "q", widget: "string"}
+              - {label: "Réponse", name: "a", widget: "text"}
+            default:
+              - {q: "Intervenez‑vous le week‑end ?", a: "Oui, sur demande. Indiquez vos disponibilités lors de la prise de contact."}
+              - {q: "Faites‑vous des devis gratuits ?", a: "Oui, le devis est gratuit et sans engagement."}
+              - {q: "Quels fichiers pour l’impression ?", a: "PDF haute définition de préférence. Nous pouvons préparer vos fichiers si besoin."}
+              - {q: "Quel est le délai ?", a: "Dépannage: souvent sous 24–48h. Impression: selon quantité et finitions."}
+`);
+
+  // 4) data/site.json
+  add('data/site.json', `{
+  "businessName": "Dépann’Print & PC Express",
+  "domain": "https://www.exemple-depannprint.fr/",
+  "contact": {
+    "email": "depanneprint.pc@gmail.com",
+    "phone": "+33617571174",
+    "whatsapp": "+33617571174",
+    "instagramUrl": "https://www.instagram.com/depannprint?igsh=MTJuOGdocjNkc28wdw%3D%3D&utm_source=qr"
+  },
+  "hero": {
+    "kicker": "Île-de-France + France à distance",
+    "title": "Dépannage informatique, impression pro et design qui fait la différence",
+    "lead": "Diagnostic rapide, installation et maintenance d’imprimantes, et création de cartes de visite & flyers. Intervention sur site en Île‑de‑France et partout en France à distance.",
+    "badges": ["Devis clair", "Intervention rapide", "Satisfaction garantie"]
+  },
+  "services": [
+    {"title":"1) Dépannage informatique","desc":"À domicile ou à distance — rapide et transparent.","bullets":["Diagnostic, suppression de virus/malware","Réinstallation Windows/Mac, optimisation","Sauvegarde et récupération de données","Installation imprimantes, Wi‑Fi et logiciels","Maintenance préventive et support"]},
+    {"title":"2) Solutions d’impression","desc":"Installation, dépannage et consommables.","bullets":["Installation imprimantes USB, réseau, Wi‑Fi","Résolution bourrages, qualité d’impression","Paramétrage pilotes et partage réseau","Conseil en modèles et contrats de maintenance","Gestion de parc d’impression"]},
+    {"title":"3) Conception graphique & impression","desc":"Cartes de visite, flyers, affiches et bannières.","bullets":["Création graphique sur‑mesure (BAT)","Conseil papiers, finitions et formats","Impression et livraison","Intégration de votre charte graphique","Forfaits packs lancement"]}
+  ],
+  "process": [
+    {"title":"Contact","text":"Expliquez votre besoin par WhatsApp, téléphone ou formulaire."},
+    {"title":"Devis","text":"Vous recevez un devis clair avec le délai et le coût estimé."},
+    {"title":"Intervention/Livraison","text":"Sur site en IDF ou à distance partout en France. Livraison des impressions."}
+  ],
+  "zones": {
+    "idfText":"Déplacement dans toute l’IDF. Entreprises et particuliers.",
+    "idfBullets":["Paris (75), Hauts‑de‑Seine (92), Seine‑Saint‑Denis (93)","Val‑de‑Marne (94), Yvelines (78), Essonne (91)","Val‑d’Oise (95), Seine‑et‑Marne (77)"],
+    "remoteBullets":["Assistance à distance pour PC/Mac","Paramétrage imprimantes et réseaux","Conseil et accompagnement"],
+    "printBullets":["Cartes de visite, flyers, affiches","Qualité pro, délais rapides","Suivi de commande"]
+  },
+  "about": {
+    "intro":"Chez Dépann’Print & PC Express, nous combinons expertise informatique, maîtrise des solutions d’impression et design graphique. Notre priorité: résoudre vos problèmes rapidement et livrer des supports imprimés qui valorisent votre image.",
+    "bullets":["Devis clair et sans surprise","Intervention rapide en IDF, support à distance national","Qualité d’impression contrôlée (BAT avant production)"]
+  },
+  "testimonials":[
+    {"text":"Diagnostic rapide et réparation dans la journée. Je recommande !","author":"Marie D."},
+    {"text":"Nos cartes de visite sont superbes. Bons conseils et livraison rapide.","author":"K. Ben"},
+    {"text":"Paramétrage imprimante réseau au top. Intervention efficace.","author":"A. Leroy"}
+  ],
+  "faq":[
+    {"q":"Intervenez‑vous le week‑end ?","a":"Oui, sur demande. Indiquez vos disponibilités lors de la prise de contact."},
+    {"q":"Faites‑vous des devis gratuits ?","a":"Oui, le devis est gratuit et sans engagement."},
+    {"q":"Quels fichiers pour l’impression ?","a":"PDF haute définition de préférence. Nous pouvons préparer vos fichiers si besoin."},
+    {"q":"Quel est le délai ?","a":"Dépannage: souvent sous 24–48h. Impression: selon quantité et finitions."}
+  ]
+}`);
+
+  // 5) Logos (4 fichiers SVG)
+  add('logo-horizontal-blue-3d.svg', `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="320" viewBox="0 0 1200 320">
+  <title>Dépann’Print & PC Express — Bleu 3D</title>
+  <defs>
+    <linearGradient id="gBlueBody" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#93C5FD"/><stop offset="0.45" stop-color="#2563EB"/><stop offset="1" stop-color="#0F3FAF"/>
+    </linearGradient>
+    <linearGradient id="gBlueEdge" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C7D2FE"/><stop offset="1" stop-color="#1E3A8A"/>
+    </linearGradient>
+    <linearGradient id="gBlueText" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#93C5FD"/><stop offset="1" stop-color="#2563EB"/>
+    </linearGradient>
+    <radialGradient id="gGloss" cx="0.2" cy="0.1" r="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.55"/><stop offset="0.6" stop-color="#FFFFFF" stop-opacity="0"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="drop" x="-20%" y="-20%" width="140%" height="140%"><feOffset dy="6" in="SourceAlpha" result="off"/><feGaussianBlur in="off" stdDeviation="6" result="blur"/><feColorMatrix in="blur" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.25 0" result="shadow"/><feBlend in="SourceGraphic" in2="shadow" mode="normal"/></filter>
+  </defs>
+  <g transform="translate(36,26)" filter="url(#drop)">
+    <g>
+      <rect x="0" y="0" rx="16" ry="16" width="220" height="128" fill="url(#gBlueBody)"/>
+      <rect x="0" y="0" rx="16" ry="16" width="220" height="128" fill="url(#gGloss)"/>
+      <rect x="86" y="128" width="48" height="12" rx="6" fill="url(#gBlueEdge)"/>
+      <rect x="66" y="140" width="88" height="10" rx="5" fill="url(#gBlueEdge)"/>
+      <rect x="28" y="78" width="18" height="36" rx="4" fill="url(#gBlueEdge)"/>
+      <rect x="56" y="64" width="18" height="50" rx="4" fill="url(#gBlueBody)"/>
+      <rect x="84" y="50" width="18" height="64" rx="4" fill="url(#gBlueBody)"/>
+    </g>
+    <g transform="translate(26,172)">
+      <rect x="0" y="0" width="188" height="68" rx="14" fill="url(#gBlueBody)"/>
+      <rect x="0" y="0" width="188" height="68" rx="14" fill="url(#gGloss)"/>
+      <rect x="24" y="22" width="140" height="22" rx="6" fill="url(#gBlueEdge)"/>
+      <rect x="46" y="-34" width="96" height="30" rx="8" fill="url(#gBlueBody)"/>
+      <rect x="62" y="46" width="64" height="28" rx="6" fill="url(#gBlueEdge)"/>
+    </g>
+    <g transform="translate(170,16)">
+      <circle cx="32" cy="32" r="22" fill="url(#gBlueBody)"/>
+      <circle cx="32" cy="32" r="22" fill="url(#gGloss)"/>
+      <circle cx="32" cy="32" r="10" fill="#FFFFFF" fill-opacity="0.85"/>
+      <g transform="translate(32,32)" fill="url(#gBlueEdge)">
+        <rect x="-4" y="-34" width="8" height="14" rx="3"/><rect x="-4" y="-34" width="8" height="14" rx="3" transform="rotate(45)"/><rect x="-4" y="-34" width="8" height="14" rx="3" transform="rotate(90)"/><rect x="-4" y="-34" width="8" height="14" rx="3" transform="rotate(135)"/><rect x="-4" y="-34" width="8" height="14" rx="3" transform="rotate(180)"/><rect x="-4" y="-34" width="8" height="14" rx="3" transform="rotate(225)"/><rect x="-4" y="-34" width="8" height="14" rx="3" transform="rotate(270)"/><rect x="-4" y="-34" width="8" height="14" rx="3" transform="rotate(315)"/>
+      </g>
+    </g>
+    <g transform="translate(174,-18)">
+      <rect x="0" y="0" rx="8" ry="8" width="70" height="30" fill="url(#gBlueBody)"/>
+      <rect x="0" y="0" rx="8" ry="8" width="70" height="30" fill="url(#gGloss)"/>
+      <text x="16" y="21" font-family="Poppins, Inter, system-ui, sans-serif" font-weight="800" font-size="16" fill="#FFFFFF">IT</text>
+    </g>
+  </g>
+  <g transform="translate(320,100)" filter="url(#drop)">
+    <text font-family="Poppins, Inter, system-ui, sans-serif" font-weight="800" font-size="48" fill="url(#gBlueText)">Dépann’Print &amp; PC Express</text>
+    <text y="52" font-family="Inter, system-ui, sans-serif" font-weight="600" font-size="20" fill="url(#gBlueEdge)">Service &amp; Support — Île‑de‑France • France à distance</text>
+  </g>
+</svg>`);
+
+  add('logo-horizontal-red-3d.svg', `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="320" viewBox="0 0 1200 320">
+  <title>Dépann’Print & PC Express — Rouge 3D</title>
+  <defs>
+    <linearGradient id="gRedBody" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FCA5A5"/><stop offset="0.45" stop-color="#DC2626"/><stop offset="1" stop-color="#991B1B"/>
+    </linearGradient>
+    <linearGradient id="gRedEdge" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FECACA"/><stop offset="1" stop-color="#7F1D1D"/>
+    </linearGradient>
+    <linearGradient id="gRedText" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FCA5A5"/><stop offset="1" stop-color="#DC2626"/>
+    </linearGradient>
+    <radialGradient id="gGlossR" cx="0.2" cy="0.1" r="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.55"/><stop offset="0.6" stop-color="#FFFFFF" stop-opacity="0"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="dropR" x="-20%" y="-20%" width="140%" height="140%"><feOffset dy="6" in="SourceAlpha" result="off"/><feGaussianBlur in="off" stdDeviation="6" result="blur"/><feColorMatrix in="blur" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.25 0" result="shadow"/><feBlend in="SourceGraphic" in2="shadow" mode="normal"/></filter>
+  </defs>
+  <g transform="translate(36,26)" filter="url(#dropR)">
+    <g>
+      <rect x="0" y="0" rx="16" ry="16" width="220" height="128" fill="url(#gRedBody)"/>
+      <rect x="0" y="0" rx="16" ry="16" width="220" height="128" fill="url(#gGlossR)"/>
+      <rect x="86" y="128" width="48" height="12" rx="6" fill="url(#gRedEdge)"/>
+      <rect x="66" y="140" width="88" height="10" rx="5" fill="url(#gRedEdge)"/>
+      <rect x="28" y="78" width="18" height="36" rx="4" fill="url(#gRedEdge)"/>
+      <rect x="56" y="64" width="18" height="50" rx="4" fill="url(#gRedBody)"/>
+      <rect x="84" y="50" width="18" height="64" rx="4" fill="url(#gRedBody)"/>
+    </g>
+    <g transform="translate(26,172)">
+      <rect x="0" y="0" width="188" height="68" rx="14" fill="url(#gRedBody)"/>
+      <rect x="0" y="0" width="188" height="68" rx="14" fill="url(#gGlossR)"/>
+      <rect x="24" y="22" width="140" height="22" rx="6" fill="url(#gRedEdge)"/>
+      <rect x="46" y="-34" width="96" height="30" rx="8" fill="url(#gRedBody)"/>
+      <rect x="62" y="46" width="64" height="28" rx="6" fill="url(#gRedEdge)"/>
+    </g>
+    <g transform="translate(170,16)">
+      <circle cx="32" cy="32" r="22" fill="url(#gRedBody)"/>
+      <circle cx="32" cy="32" r="22" fill="url(#gGlossR)"/>
+      <circle cx="32" cy="32" r="10" fill="#FFFFFF" fill-opacity="0.85"/>
+      <g transform="translate(32,32)" fill="url(#gRedEdge)">
+        <rect x="-4" y="-34" width="8" height="14" rx="3"/><rect x="-4" y="-34" width="8" height="14" rx="3" transform="rotate(45)"/><rect x="-4" y="-34" width="8" height="14" rx="3" transform="rotate(90)"/><rect x="-4" y="-34" width="8" height="14" rx="3" transform="rotate(135)"/><rect x="-4" y="-34" width="8" height="14" rx="3" transform="rotate(180)"/><rect x="-4" y="-34" width="8" height="14" rx="3" transform="rotate(225)"/><rect x="-4" y="-34" width="8" height="14" rx="3" transform="rotate(270)"/><rect x="-4" y="-34" width="8" height="14" rx="3" transform="rotate(315)"/>
+      </g>
+    </g>
+    <g transform="translate(174,-18)">
+      <rect x="0" y="0" rx="8" ry="8" width="70" height="30" fill="url(#gRedBody)"/>
+      <rect x="0" y="0" rx="8" ry="8" width="70" height="30" fill="url(#gGlossR)"/>
+      <text x="16" y="21" font-family="Poppins, Inter, system-ui, sans-serif" font-weight="800" font-size="16" fill="#FFFFFF">IT</text>
+    </g>
+  </g>
+  <g transform="translate(320,100)" filter="url(#dropR)">
+    <text font-family="Poppins, Inter, system-ui, sans-serif" font-weight="800" font-size="48" fill="url(#gRedText)">Dépann’Print &amp; PC Express</text>
+    <text y="52" font-family="Inter, system-ui, sans-serif" font-weight="600" font-size="20" fill="url(#gRedEdge)">Service &amp; Support — Île‑de‑France • France à distance</text>
+  </g>
+</svg>`);
+
+  add('logo-badge-blue-3d.svg', `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <title>Dépann’Print Express — Badge Bleu 3D</title>
+  <defs>
+    <linearGradient id="bgBlue" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1E40AF"/><stop offset="1" stop-color="#0F3FAF"/></linearGradient>
+    <linearGradient id="cardBlue" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#93C5FD"/><stop offset="0.5" stop-color="#2563EB"/><stop offset="1" stop-color="#0F3FAF"/></linearGradient>
+    <radialGradient id="glossB" cx="0.2" cy="0.1" r="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0.55"/><stop offset="0.6" stop-color="#FFFFFF" stop-opacity="0"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient>
+    <filter id="dropB" x="-20%" y="-20%" width="140%" height="140%"><feOffset dy="10" in="SourceAlpha" result="off"/><feGaussianBlur in="off" stdDeviation="12" result="blur"/><feColorMatrix in="blur" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.25 0" result="shadow"/><feBlend in="SourceGraphic" in2="shadow" mode="normal"/></filter>
+  </defs>
+  <rect width="1024" height="1024" rx="96" fill="url(#bgBlue)"/>
+  <g transform="translate(210,200)" filter="url(#dropB)">
+    <g>
+      <rect x="0" y="0" rx="28" ry="28" width="420" height="240" fill="url(#cardBlue)"/><rect x="0" y="0" rx="28" ry="28" width="420" height="240" fill="url(#glossB)"/>
+      <rect x="170" y="240" width="80" height="22" rx="10" fill="#0B2C8A" fill-opacity="0.8"/><rect x="140" y="262" width="140" height="18" rx="9" fill="#0B2C8A" fill-opacity="0.8"/>
+      <rect x="56" y="138" width="28" height="72" rx="6" fill="#1E3A8A"/><rect x="96" y="116" width="28" height="94" rx="6" fill="#2563EB"/><rect x="136" y="94" width="28" height="116" rx="6" fill="#2563EB"/>
+    </g>
+    <g transform="translate(60,340)">
+      <rect x="0" y="0" width="340" height="126" rx="24" fill="url(#cardBlue)"/><rect x="0" y="0" width="340" height="126" rx="24" fill="url(#glossB)"/>
+      <rect x="52" y="40" width="236" height="38" rx="10" fill="#1E3A8A"/><rect x="86" y="-58" width="168" height="48" rx="14" fill="url(#cardBlue)"/><rect x="126" y="92" width="140" height="48" rx="12" fill="#1E3A8A"/>
+    </g>
+    <g transform="translate(360,-10)">
+      <circle cx="68" cy="68" r="46" fill="url(#cardBlue)"/><circle cx="68" cy="68" r="46" fill="url(#glossB)"/><circle cx="68" cy="68" r="20" fill="#FFFFFF" fill-opacity="0.85"/>
+      <g transform="translate(68,68)" fill="#1E3A8A"><rect x="-8" y="-70" width="16" height="28" rx="6"/><rect x="-8" y="-70" width="16" height="28" rx="6" transform="rotate(45)"/><rect x="-8" y="-70" width="16" height="28" rx="6" transform="rotate(90)"/><rect x="-8" y="-70" width="16" height="28" rx="6" transform="rotate(135)"/><rect x="-8" y="-70" width="16" height="28" rx="6" transform="rotate(180)"/><rect x="-8" y="-70" width="16" height="28" rx="6" transform="rotate(225)"/><rect x="-8" y="-70" width="16" height="28" rx="6" transform="rotate(270)"/><rect x="-8" y="-70" width="16" height="28" rx="6" transform="rotate(315)"/></g>
+    </g>
+  </g>
+  <g transform="translate(92,780)" filter="url(#dropB
