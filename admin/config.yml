@@ -1,0 +1,75 @@
+backend:
+  name: git-gateway
+  branch: main
+media_folder: "assets/uploads"
+public_folder: "/assets/uploads"
+collections:
+  - name: "site"
+    label: "Textes & Paramètres"
+    files:
+      - file: "data/site.json"
+        label: "Contenu de la page"
+        fields:
+          - label: "Nom de l’entreprise"
+            name: "businessName"
+            widget: "string"
+            default: "Dépann’Print & PC Express"
+          - label: "Domaine (URL complète avec https://)"
+            name: "domain"
+            widget: "string"
+            default: "https://www.exemple-depannprint.fr/"
+          - label: "Contact"
+            name: "contact"
+            widget: "object"
+            fields:
+              - {label: "Email", name: "email", widget: "string", default: "depanneprint.pc@gmail.com"}
+              - {label: "Téléphone (format international)", name: "phone", widget: "string", default: "‪+33617571174‬"}
+              - {label: "WhatsApp (format international)", name: "whatsapp", widget: "string", default: "‪+33617571174‬"}
+              - {label: "Instagram URL", name: "instagramUrl", widget: "string", default: "https://www.instagram.com/depannprint?igsh=MTJuOGdocjNkc28wdw%3D%3D&utm_source=qr"}
+          - label: "Hero"
+            name: "hero"
+            widget: "object"
+            fields:
+              - {label: "Kicker", name: "kicker", widget: "string"}
+              - {label: "Titre", name: "title", widget: "string"}
+              - {label: "Accroche", name: "lead", widget: "text"}
+              - {label: "Badges", name: "badges", widget: "list", field: {label: "Badge", name: "badge", widget: "string"}}
+          - label: "Services"
+            name: "services"
+            widget: "list"
+            fields:
+              - {label: "Titre", name: "title", widget: "string"}
+              - {label: "Description", name: "desc", widget: "string"}
+              - {label: "Points", name: "bullets", widget: "list", field: {label: "Point", name: "point", widget: "string"}}
+          - label: "Process (3 étapes)"
+            name: "process"
+            widget: "list"
+            fields:
+              - {label: "Titre", name: "title", widget: "string"}
+              - {label: "Texte", name: "text", widget: "string"}
+          - label: "Zones"
+            name: "zones"
+            widget: "object"
+            fields:
+              - {label: "Texte IDF", name: "idfText", widget: "string"}
+              - {label: "IDF — Points", name: "idfBullets", widget: "list", field: {label: "Point", name: "point", widget: "string"}}
+              - {label: "À distance — Points", name: "remoteBullets", widget: "list", field: {label: "Point", name: "point", widget: "string"}}
+              - {label: "Impression — Points", name: "printBullets", widget: "list", field: {label: "Point", name: "point", widget: "string"}}
+          - label: "À propos"
+            name: "about"
+            widget: "object"
+            fields:
+              - {label: "Texte", name: "intro", widget: "text"}
+              - {label: "Points", name: "bullets", widget: "list", field: {label: "Point", name: "point", widget: "string"}}
+          - label: "Avis"
+            name: "testimonials"
+            widget: "list"
+            fields:
+              - {label: "Texte", name: "text", widget: "text"}
+              - {label: "Auteur", name: "author", widget: "string"}
+          - label: "FAQ"
+            name: "faq"
+            widget: "list"
+            fields:
+              - {label: "Question", name: "q", widget: "string"}
+              - {label: "Réponse", name: "a", widget: "text"}
